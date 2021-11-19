@@ -1,0 +1,26 @@
+{
+  "name": "vue3-workouts",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^1.28.0",
+    "@tailwindcss/postcss7-compat": "^2.2.17",
+    "core-js": "^3.19.1",
+    "node-sass": "^6.0.1",
+    "sass": "^1.43.4",
+    "uid": "^2.0.0",
+    "vue": "^3.2.16",
+    "vue-router": "^4.0.12"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^1.9.3",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.3.11",
+    "tailwindcss": "^2.2.19",
+    "vite": "^2.6.4"
+  }
+}
