@@ -6,7 +6,8 @@ import Create from '../views/Create.vue';
 
 const routes = [
   {
-    path: '/vue3-workouts',
+    // TODO: change path to /vue3-workouts when deploying
+    path: '/',
     name: 'Home',
     component: Home,
   },
