@@ -4,7 +4,7 @@
       <p class="text-red-500">{{ errorMessage }}</p>
     </div>
 
-    <form class="p-8 flex flex-col bg-light-grey rounded-md shadow-lg">
+    <form @submit.prevent="register" class="p-8 flex flex-col bg-light-grey rounded-md shadow-lg">
       <h1 class="text-3xl text-at-light-green mb-4">Register</h1>
       <div class="flex flex-col mb-2">
         <label for="email" class="mb-1 text-sm text-at-light-green">Email</label>
@@ -45,17 +45,43 @@
 
 <script>
 import { ref } from 'vue';
+import { supabase } from '../supabase/init';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'Register',
 
   setup() {
+    const router = useRouter();
     const email = ref(null);
     const password = ref(null);
     const confirmPassword = ref(null);
     const errorMessage = ref(null);
 
-    return { email, password, confirmPassword, errorMessage };
+    const register = async () => {
+      if (password.value === confirmPassword.value) {
+        try {
+          const { error } = await supabase.auth.signUp({
+            email: email.value,
+            password: password.value,
+          });
+          if (error) throw error;
+          router.push({ name: 'Login' });
+        } catch (error) {
+          errorMessage.value = error.message;
+          setTimeout(() => {
+            errorMessage.value = null;
+          }, 5000);
+        }
+      } else {
+        errorMessage.value = 'Error: Passwords do not match';
+        setTimeout(() => {
+          errorMessage.value = null;
+        }, 5000);
+      }
+    };
+
+    return { email, password, confirmPassword, errorMessage, register };
   },
 };
 </script>
