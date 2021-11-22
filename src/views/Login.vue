@@ -4,7 +4,7 @@
       <p class="text-red-500">{{ errorMessage }}</p>
     </div>
 
-    <form class="p-8 flex flex-col bg-light-grey rounded-md shadow-lg">
+    <form @submit.prevent="login" class="p-8 flex flex-col bg-light-grey rounded-md shadow-lg">
       <h1 class="text-3xl text-at-light-green mb-4">Login</h1>
       <div class="flex flex-col mb-2">
         <label for="email" class="mb-1 text-sm text-at-light-green">Email</label>
@@ -40,16 +40,35 @@
 
 <script>
 import { ref } from 'vue';
+import { supabase } from '../supabase/init';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'Login',
 
   setup() {
+    const router = useRouter();
     const email = ref(null);
     const password = ref(null);
     const errorMessage = ref(null);
 
-    return { email, password, errorMessage };
+    const login = async () => {
+      try {
+        const { error } = await supabase.auth.signIn({
+          email: email.value,
+          password: password.value,
+        });
+        if (error) throw error;
+        router.push({ name: 'Home' });
+      } catch (error) {
+        errorMessage.value = `Error: ${error.message}`;
+        setTimeout(() => {
+          errorMessage.value = null;
+        }, 5000);
+      }
+    };
+
+    return { email, password, errorMessage, login };
   },
 };
 </script>
