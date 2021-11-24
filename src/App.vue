@@ -26,7 +26,6 @@ export default {
     }
 
     supabase.auth.onAuthStateChange((_, session) => {
-      console.log('hello');
       store.methods.setUser(session);
       isApplicationReady.value = true;
     });
