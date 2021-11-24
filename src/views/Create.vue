@@ -8,7 +8,7 @@
     </div>
 
     <div class="p-8 flex items-start bg-light-grey rounded-md shadow-lg">
-      <form class="flex flex-col gap-y-5 w-full">
+      <form @submit.prevent="createWorkout" class="flex flex-col gap-y-5 w-full">
         <h1 class="text-2xl text-at-light-green">Record Workout</h1>
 
         <div class="flex flex-col">
@@ -18,7 +18,7 @@
 
         <div class="flex flex-col">
           <label for="workout-type" class="mb-1 text-sm text-at-light-green">Workout Type</label>
-          <select id="workout-type" class="p-2 text-gray-500 focus:outline-none" required v-model="workoutType">
+          <select @change="onWorkoutChange" id="workout-type" class="p-2 text-gray-500 focus:outline-none" required v-model="workoutType">
             <option value="select-workout">Select Workout</option>
             <option value="strength">Strength Training</option>
             <option value="cardio">Cardio</option>
@@ -43,9 +43,10 @@
               <label for="weight" class="mb-1 text-sm text-at-light-green">Weight (LB's) </label>
               <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.weight" />
             </div>
-            <img src="../assets/images/trash-light-green.png" class="h-4 w-auto absolute -left-5 cursor-pointer" alt="" />
+            <img @click="deleteExercise(item.id)" src="../assets/images/trash-light-green.png" class="h-4 w-auto absolute -left-5 cursor-pointer" alt="" />
           </div>
           <button
+            @click="addStrengthExercise"
             type="button"
             class="
               mt-6
@@ -86,9 +87,10 @@
               <label for="pace" class="mb-1 text-sm text-at-light-green">Pace </label>
               <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.pace" />
             </div>
-            <img src="../assets/images/trash-light-green.png" class="h-4 w-auto absolute -left-5 cursor-pointer" alt="" />
+            <img @click="deleteExercise(item.id)" src="../assets/images/trash-light-green.png" class="h-4 w-auto absolute -left-5 cursor-pointer" alt="" />
           </div>
           <button
+            @click="addCardioExercise"
             type="button"
             class="
               mt-6
@@ -131,6 +133,8 @@
 
 <script>
 import { ref } from 'vue';
+import { uid } from 'uid';
+import { supabase } from '../supabase/init';
 
 export default {
   setup() {
@@ -140,7 +144,76 @@ export default {
     const statusMessage = ref(null);
     const errorMessage = ref(null);
 
-    return { workoutName, workoutType, exercises, statusMessage, errorMessage };
+    const addStrengthExercise = () => {
+      return exercises.value.push({
+        id: uid(),
+        exercise: '',
+        sets: '',
+        reps: '',
+        weight: '',
+      });
+    };
+
+    const addCardioExercise = () => {
+      return exercises.value.push({
+        id: uid(),
+        cardioType: '',
+        distance: '',
+        duration: '',
+        pace: '',
+      });
+    };
+
+    const createWorkout = async () => {
+      try {
+        const { error } = await supabase.from('workouts').insert([
+          {
+            workoutName: workoutName.value,
+            workoutType: workoutType.value,
+            exercises: exercises.value,
+          },
+        ]);
+        if (error) throw error;
+        statusMessage.value = 'Success: Workout Created!';
+        setTimeout(() => {
+          statusMessage.value = false;
+        }, 5000);
+      } catch (error) {
+        errorMessage.value = `Error: ${error.message}`;
+        setTimeout(() => {
+          errorMessage.value = false;
+        }, 5000);
+      } finally {
+        workoutName.value = null;
+        workoutType.value = 'select-workout';
+        exercises.value = [];
+      }
+    };
+
+    const deleteExercise = (id) => {
+      if (exercises.value.length > 1) {
+        exercises.value = exercises.value.filter((exercise) => exercise.id !== id);
+        return;
+      }
+
+      errorMessage.value = 'Error: Cannot remove, need to at least have one exercise.';
+
+      setTimeout(() => {
+        errorMessage.value = false;
+      }, 5000);
+    };
+
+    const onWorkoutChange = () => {
+      exercises.value = [];
+
+      if (workoutType.value === 'strength') {
+        addStrengthExercise();
+      } else if (workoutType.value === 'cardio') {
+        addCardioExercise();
+      }
+    };
+
+    return { workoutName, workoutType, exercises, statusMessage, errorMessage, addStrengthExercise, addCardioExercise, onWorkoutChange, deleteExercise, createWorkout };
   },
 };
 </script>
