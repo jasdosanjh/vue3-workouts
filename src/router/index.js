@@ -8,8 +8,7 @@ import Workout from '../views/Workout.vue';
 
 const routes = [
   {
-    // TODO: change path to /vue3-workouts when deploying
-    path: '/',
+    path: '/vue3-workouts',
     name: 'Home',
     component: Home,
     meta: {
